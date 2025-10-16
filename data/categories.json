@@ -1,0 +1,27 @@
+[
+    {
+        "id": "truyenthong",
+        "name": "Truyền thống",
+        "image": "https:\/\/picsum.photos\/seed\/cat1\/600\/400"
+    },
+    {
+        "id": "cosplay",
+        "name": "Cosplay",
+        "image": "https:\/\/picsum.photos\/seed\/cat2\/600\/400"
+    },
+    {
+        "id": "diano",
+        "name": "Dạ hội",
+        "image": "https:\/\/picsum.photos\/seed\/cat3\/600\/400"
+    },
+    {
+        "id": "sukien",
+        "name": "Biểu diễn\/Sự kiện",
+        "image": "https:\/\/picsum.photos\/seed\/cat4\/600\/400"
+    },
+    {
+        "id": "tet",
+        "name": "Tết",
+        "image": ""
+    }
+]

@@ -1,0 +1,77 @@
+[
+    {
+        "code": "TP20251014-16667E",
+        "customer": {
+            "name": "HTRUC",
+            "phone": "0398556089",
+            "email": "",
+            "address": "TDM"
+        },
+        "items": [
+            {
+                "id": 18,
+                "size": "M",
+                "from": "2025-01-28",
+                "days": 2,
+                "pricePerDay": 225000
+            }
+        ],
+        "subtotal": 450000,
+        "shippingFee": 30000,
+        "total": 480000,
+        "payment": "cod",
+        "shipping": "delivery",
+        "note": "",
+        "createdAt": "2025-10-14T10:41:07+02:00"
+    },
+    {
+        "code": "TP20251014-F014EC",
+        "customer": {
+            "name": "Lê Văn Lâm",
+            "phone": "0368453405",
+            "email": "",
+            "address": "TDM"
+        },
+        "items": [
+            {
+                "id": 3,
+                "size": "M",
+                "from": "2025-10-16",
+                "days": 4,
+                "pricePerDay": 250
+            }
+        ],
+        "subtotal": 1000,
+        "shippingFee": 30000,
+        "total": 31000,
+        "payment": "cod",
+        "shipping": "delivery",
+        "note": "",
+        "createdAt": "2025-10-14T11:22:13+02:00"
+    },
+    {
+        "code": "TP20251014-DB7DA7",
+        "customer": {
+            "name": "minh",
+            "phone": "0926738236",
+            "email": "",
+            "address": "t"
+        },
+        "items": [
+            {
+                "id": 3,
+                "size": "M",
+                "from": "2025-10-24",
+                "days": 10,
+                "pricePerDay": 250
+            }
+        ],
+        "subtotal": 2500,
+        "shippingFee": 30000,
+        "total": 32500,
+        "payment": "cod",
+        "shipping": "delivery",
+        "note": "",
+        "createdAt": "2025-10-14T11:39:13+02:00"
+    }
+]

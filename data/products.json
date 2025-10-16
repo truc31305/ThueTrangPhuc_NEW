@@ -1,0 +1,87 @@
+[
+    {
+        "id": 1,
+        "name": "VEST TÂY",
+        "category": "truyenthong",
+        "pricePerDay": 150000,
+        "deposit": 0,
+        "shortDesc": "Thoải mái, không gò bó , sang trọng",
+        "longDesc": "Bộ vest tây phom dáng hiện đại, phù hợp kỷ yếu, dự tiệc, chụp ảnh.",
+        "material": "kaki",
+        "sizes": [
+            "M",
+            "L",
+            "XL",
+            "XXL"
+        ],
+        "colors": [
+            "Đen",
+            "Trắng"
+        ],
+        "events": [
+            "Kỷ yếu",
+            "Đám Cưới",
+            "Đi Tiệc"
+        ],
+        "images": [
+            "assets\/uploads\/vest1-68ee45ebc47ed.jpg"
+        ],
+        "isFeatured": true,
+        "reviews": []
+    },
+    {
+        "id": 3,
+        "name": "Áo vest đen kẻ cổ ve khuyết",
+        "category": "truyenthong",
+        "pricePerDay": 250,
+        "deposit": 50,
+        "shortDesc": "",
+        "longDesc": "Áo vest đen kẻ là một loại trang phục sang trọng, lịch lãm, thường có đặc điểm là màu đen kết hợp với họa tiết kẻ sọc hoặc kẻ ô, giúp người mặc trông thanh thoát và gọn gàng hơn. Loại áo này được làm từ nhiều chất liệu khác nhau như len, rayon, polyester, spandex, có khả năng chống nhăn, thoáng khí và co giãn tốt, phù hợp cho cả môi trường công sở lẫn đi chơi.",
+        "material": "- Rayon thấm hút rất tốt, mang lại cảm giác thoáng mát khi mặc - Polyester chống bám bụi, chống nhăn và độ bền màu cao - Spandex giúp co giãn hơn, tạo cảm giác thoải mái khi mặc",
+        "sizes": [
+            "M",
+            "L",
+            "XL",
+            "XXL"
+        ],
+        "colors": [
+            "Đen",
+            "Trắng"
+        ],
+        "events": [],
+        "images": [
+            "assets\/uploads\/vest1-68ee162052f8d.jpg"
+        ],
+        "isFeatured": true,
+        "reviews": []
+    },
+    {
+        "id": 4,
+        "name": "Trang Phục Hằng Nga Màu Đỏ",
+        "category": "cosplay",
+        "pricePerDay": 78,
+        "deposit": 25,
+        "shortDesc": "Trang Phục Hằng Nga đem lại sự thoải mái với chất voan, lụa thoáng khí và mềm mại!",
+        "longDesc": "Trong nghệ thuật Á Đông Hằng Nga thường xuyên là đề tài hoa mỹ của nhiều tác phẩm hội họa, ca kịch, cổ tích, truyền thuyết Trung Hoa. Phần lớn đều hình dung nàng có một dung mạo xinh đẹp phi phàm. Về văn hóa Việt Nam, Chị Hằng thường được trẻ em Việt Nam nhắc đến như một người bạn của chú Cuội, dựa theo cổ tích Cây Đa Và Chú Cuội rất nổi tiếng, gắn liền với Tết Trung Thu!!",
+        "material": "bồng bềnh , mát mẻ",
+        "sizes": [
+            "M",
+            "L",
+            "XL",
+            "XXL"
+        ],
+        "colors": [
+            "đỏ",
+            "trắng"
+        ],
+        "events": [
+            "chụp ảnh",
+            "cosplay"
+        ],
+        "images": [
+            "assets\/uploads\/cosplay_1-68ee1b0580896.webp"
+        ],
+        "isFeatured": false,
+        "reviews": []
+    }
+]
