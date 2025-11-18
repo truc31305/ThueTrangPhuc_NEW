@@ -45,6 +45,10 @@ if (!$product) { $product = ['id'=>$id,'name'=>'Không tìm thấy','pricePerDay
 				Số ngày
 				<input type="number" name="days" min="1" value="2" required>
 			</label>
+			<label>
+				Số lượng
+				<input type="number" name="qty" min="1" value="1" required>
+			</label>
 			<button class="btn btn-primary" type="submit">Thêm vào giỏ/Đặt</button>
 		</form>
 		<div class="desc">
@@ -56,6 +60,24 @@ if (!$product) { $product = ['id'=>$id,'name'=>'Không tìm thấy','pricePerDay
 				<li><strong>Màu sắc:</strong> <?php echo htmlspecialchars(implode(', ', $product['colors'])); ?></li>
 				<li><strong>Phù hợp:</strong> <?php echo htmlspecialchars(implode(', ', $product['events'])); ?></li>
 			</ul>
+			<?php $accInc = $product['accessoriesIncluded'] ?? []; $accOpt = $product['accessoriesOptional'] ?? []; ?>
+			<?php if (($product['category'] ?? '') === 'cosplay') { if (empty($accOpt)) { $accOpt = ['Dù', 'Áo choàng', 'Mũ', 'Tóc giả']; } } ?>
+			<?php if (!empty($accInc)): ?>
+			<h3>Phụ kiện đi kèm</h3>
+			<ul>
+				<?php foreach ($accInc as $ai): ?>
+				<li><?php echo htmlspecialchars($ai); ?></li>
+				<?php endforeach; ?>
+			</ul>
+			<?php endif; ?>
+			<?php if (!empty($accOpt)): ?>
+			<h3>Phụ kiện tự mix (gợi ý)</h3>
+			<ul>
+				<?php foreach ($accOpt as $ao): ?>
+				<li><?php echo htmlspecialchars($ao); ?></li>
+				<?php endforeach; ?>
+			</ul>
+			<?php endif; ?>
 			<h3>Hướng dẫn thuê / trả</h3>
 			<ol>
 				<li>Chọn ngày thuê và số ngày sử dụng phù hợp.</li>
@@ -101,6 +123,44 @@ if (!$product) { $product = ['id'=>$id,'name'=>'Không tìm thấy','pricePerDay
 		<?php endforeach; ?>
 	</div>
 </section>
+
+<?php
+// Accessories gallery with checkboxes
+$ACC = isset($product['accessories']) && is_array($product['accessories']) ? $product['accessories'] : [];
+if (($product['category'] ?? '') === 'cosplay' && empty($ACC)) {
+    $ACC = [
+        ['name' => 'Dù', 'pricePerDay' => 20000, 'image' => 'https://via.placeholder.com/240x180?text=Du'],
+        ['name' => 'Áo choàng', 'pricePerDay' => 30000, 'image' => 'https://via.placeholder.com/240x180?text=Aochang'],
+        ['name' => 'Mũ', 'pricePerDay' => 15000, 'image' => 'https://via.placeholder.com/240x180?text=Mu'],
+        ['name' => 'Tóc giả', 'pricePerDay' => 40000, 'image' => 'https://via.placeholder.com/240x180?text=Toc+gia'],
+    ];
+}
+if (!empty($ACC)):
+?>
+<section class="section">
+    <h2>Phụ kiện (chọn thêm)</h2>
+    <div class="grid products-grid">
+        <?php foreach ($ACC as $i => $a): $an = $a['name'] ?? ''; $ap = (int)($a['pricePerDay'] ?? 0); $ai = $a['image'] ?? ''; ?>
+        <label class="card" style="cursor:pointer">
+            <div class="card-thumb">
+                <img src="<?php echo htmlspecialchars($ai); ?>" alt="<?php echo htmlspecialchars($an); ?>">
+            </div>
+            <div class="card-body">
+                <h3 style="margin:0 0 6px 0"><?php echo htmlspecialchars($an); ?></h3>
+                <div class="price">+ <?php echo number_format($ap,0,',','.'); ?>₫/ngày</div>
+                <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+                    <input type="checkbox" name="acc_sel[]" value="<?php echo (int)$i; ?>">
+                    <span>Chọn</span>
+                </div>
+                <input type="hidden" name="acc_name[<?php echo (int)$i; ?>]" value="<?php echo htmlspecialchars($an); ?>">
+                <input type="hidden" name="acc_price[<?php echo (int)$i; ?>]" value="<?php echo (int)$ap; ?>">
+                <input type="hidden" name="acc_image[<?php echo (int)$i; ?>]" value="<?php echo htmlspecialchars($ai); ?>">
+            </div>
+        </label>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
 
 <?php $related = findRelatedProducts($product['category'], $product['id']); ?>
 <section class="section">

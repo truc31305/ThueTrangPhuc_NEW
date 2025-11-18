@@ -16,7 +16,13 @@ $shippingFee = $shipping === 'delivery' ? 30000 : 0;
 // Calculate totals from session cart
 $items = $_SESSION['cart'] ?? [];
 $subtotal = 0;
-foreach ($items as $it) { $subtotal += $it['pricePerDay'] * max(1,(int)$it['days']); }
+foreach ($items as $it) {
+    $qty = max(1,(int)($it['qty'] ?? 1));
+    $days = max(1,(int)$it['days']);
+    $base = $it['pricePerDay'] * $days * $qty;
+    $accSum = 0; foreach (($it['accessories'] ?? []) as $ac) { $accSum += (int)($ac['pricePerDay'] ?? 0) * $days * $qty; }
+    $subtotal += $base + $accSum;
+}
 $total = $subtotal + $shippingFee;
 
 // Generate a demo order code
@@ -66,19 +72,27 @@ writeJsonFile($ordersPath, $orders);
 		<p><strong>Ghi chú:</strong> <?php echo nl2br(htmlspecialchars($note)); ?></p>
 	</div></div>
 
-	<h3>Danh sách sản phẩm</h3>
-	<table class="table">
-		<thead><tr><th>#</th><th>Sản phẩm</th><th>Kích cỡ</th><th>Từ ngày</th><th>Số ngày</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
+    <h3>Danh sách sản phẩm</h3>
+    <table class="table">
+        <thead><tr><th>#</th><th>Sản phẩm</th><th>Kích cỡ</th><th>Từ ngày</th><th>Số ngày</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
 		<tbody>
 			<?php foreach ($items as $i => $it): ?>
 			<tr>
 				<td><?php echo $i+1; ?></td>
-				<td>Trang phục #<?php echo (int)$it['id']; ?></td>
+                <td>
+                    Trang phục #<?php echo (int)$it['id']; ?>
+                    <?php if (!empty($it['accessories'])): ?>
+                    <div style="font-size:13px;color:var(--muted);margin-top:4px">
+                        Phụ kiện: <?php $names = array_map(function($a){return htmlspecialchars($a['name'] ?? '');}, $it['accessories']); echo implode(', ', $names); ?>
+                    </div>
+                    <?php endif; ?>
+                </td>
 				<td><?php echo htmlspecialchars($it['size']); ?></td>
 				<td><?php echo htmlspecialchars($it['from']); ?></td>
-				<td><?php echo (int)$it['days']; ?></td>
-				<td><?php echo number_format($it['pricePerDay'],0,',','.'); ?>₫</td>
-				<td><?php echo number_format($it['pricePerDay']*max(1,(int)$it['days']),0,',','.'); ?>₫</td>
+                <td><?php echo (int)$it['days']; ?></td>
+                <td><?php echo (int)max(1,(int)($it['qty'] ?? 1)); ?></td>
+                <td><?php echo number_format($it['pricePerDay'],0,',','.'); ?>₫</td>
+                <td><?php $qty=max(1,(int)($it['qty'] ?? 1)); $days=max(1,(int)$it['days']); $base=$it['pricePerDay']*$days*$qty; $accSum=0; foreach(($it['accessories']??[]) as $ac){ $accSum+=(int)($ac['pricePerDay']??0)*$days*$qty;} echo number_format($base+$accSum,0,',','.'); ?>₫</td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

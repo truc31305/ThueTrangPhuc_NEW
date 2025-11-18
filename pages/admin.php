@@ -23,11 +23,13 @@ $tab = $_GET['tab'] ?? 'dashboard';
 
 	<?php if ($tab === 'dashboard'): ?>
 		<?php $orders = readJsonFile(__DIR__ . '/../data/orders.json'); $feedback = readJsonFile(__DIR__ . '/../data/feedback.json'); $users = loadUsers(); $products = readJsonFile(__DIR__ . '/../data/products.json'); ?>
-		<div class="grid" style="grid-template-columns:repeat(4,1fr);gap:12px">
+		<div class="grid" style="grid-template-columns:repeat(5,1fr);gap:12px">
 			<div class="card"><div class="card-body"><strong>Sản phẩm</strong><div style="font-size:24px"><?php echo count($products); ?></div></div></div>
 			<div class="card"><div class="card-body"><strong>Đơn hàng</strong><div style="font-size:24px"><?php echo count($orders); ?></div></div></div>
 			<div class="card"><div class="card-body"><strong>Người dùng</strong><div style="font-size:24px"><?php echo count($users); ?></div></div></div>
 			<div class="card"><div class="card-body"><strong>Feedback</strong><div style="font-size:24px"><?php echo count($feedback); ?></div></div></div>
+            <?php $totalItemsOrdered = 0; foreach ($orders as $o) { foreach (($o['items'] ?? []) as $it) { $totalItemsOrdered += max(1,(int)($it['qty'] ?? 1)); } } ?>
+            <div class="card"><div class="card-body"><strong>Sản phẩm đã đặt</strong><div style="font-size:24px"><?php echo (int)$totalItemsOrdered; ?></div></div></div>
 		</div>
 
 		<?php
@@ -39,14 +41,18 @@ $tab = $_GET['tab'] ?? 'dashboard';
 			if (isset($days[$day])) { $days[$day] += (int)($o['total'] ?? 0); }
 		}
 		$maxVal = max($days ?: [0]); if ($maxVal <= 0) { $maxVal = 1; }
-		// Prepare totals by category
+		// Prepare totals by category (bao gồm phụ kiện và số lượng)
 		$pidToCat = [];
 		foreach ($products as $p) { $pidToCat[(int)$p['id']] = $p['category'] ?? 'khac'; }
 		$catTotals = [];
 		foreach ($orders as $o) {
 			foreach (($o['items'] ?? []) as $it) {
 				$cat = $pidToCat[(int)($it['id'] ?? 0)] ?? 'khac';
-				$catTotals[$cat] = ($catTotals[$cat] ?? 0) + ((int)($it['pricePerDay'] ?? 0)) * max(1,(int)($it['days'] ?? 1));
+				$qty = max(1,(int)($it['qty'] ?? 1));
+				$days = max(1,(int)($it['days'] ?? 1));
+				$base = ((int)($it['pricePerDay'] ?? 0)) * $days * $qty;
+				$acc = 0; foreach (($it['accessories'] ?? []) as $ac) { $acc += (int)($ac['pricePerDay'] ?? 0) * $days * $qty; }
+				$catTotals[$cat] = ($catTotals[$cat] ?? 0) + $base + $acc;
 			}
 		}
 		arsort($catTotals);
@@ -319,6 +325,19 @@ $tab = $_GET['tab'] ?? 'dashboard';
                 if ($action === 'update' && empty($finalImages) && !empty($existing['images'])) {
                     $finalImages = $existing['images'];
                 }
+                // Build accessories array from parallel lists
+                $accNames = array_values(array_filter(array_map('trim', explode(',', $_POST['acc_names'] ?? ''))));
+                $accPrices = array_values(array_map('trim', explode(',', $_POST['acc_prices'] ?? '')));
+                $accImages = array_values(array_map('trim', explode(',', $_POST['acc_images'] ?? '')));
+                $accessories = [];
+                $n = count($accNames);
+                for ($i=0; $i<$n; $i++) {
+                    $name = $accNames[$i] ?? '';
+                    if ($name === '') continue;
+                    $price = (int)preg_replace('/[^0-9]/','', $accPrices[$i] ?? '0');
+                    $img = $accImages[$i] ?? '';
+                    $accessories[] = ['name'=>$name,'pricePerDay'=>$price,'image'=>$img];
+                }
 				$record = [
 					'id' => $id,
                     'name' => trim($_POST['name'] ?? ''),
@@ -331,6 +350,7 @@ $tab = $_GET['tab'] ?? 'dashboard';
 					'sizes' => array_values(array_filter(array_map('trim', explode(',', $_POST['sizes'] ?? '')))),
 					'colors' => array_values(array_filter(array_map('trim', explode(',', $_POST['colors'] ?? '')))),
 					'events' => array_values(array_filter(array_map('trim', explode(',', $_POST['events'] ?? '')))),
+                    'accessories' => $accessories,
                     'images' => $finalImages,
                     'isFeatured' => isset($_POST['isFeatured']) ? true : false,
                     'reviews' => $existing['reviews'] ?? []
@@ -381,6 +401,15 @@ $tab = $_GET['tab'] ?? 'dashboard';
                     <label>Kích cỡ (phân tách dấu phẩy)<input name="sizes" placeholder="S,M,L,XL" value="<?php echo htmlspecialchars(isset($editing['sizes'])?implode(',',(array)$editing['sizes']):''); ?>"></label>
                     <label>Màu sắc (phân tách dấu phẩy)<input name="colors" placeholder="Đỏ,Xanh,Đen" value="<?php echo htmlspecialchars(isset($editing['colors'])?implode(',',(array)$editing['colors']):''); ?>"></label>
                     <label>Sự kiện (phân tách dấu phẩy)<input name="events" placeholder="Chụp ảnh,Cosplay" value="<?php echo htmlspecialchars(isset($editing['events'])?implode(',',(array)$editing['events']):''); ?>"></label>
+                    <label class="full">Phụ kiện - Tên (nhiều, phân tách dấu phẩy)
+                        <input name="acc_names" placeholder="Dù, Áo choàng, Mũ" value="<?php echo htmlspecialchars(isset($editing['accessories'])?implode(',', array_map(function($a){return (string)($a['name']??'');}, (array)$editing['accessories'])):''); ?>">
+                    </label>
+                    <label>Phụ kiện - Giá/ngày (đồng bộ thứ tự)
+                        <input name="acc_prices" placeholder="20000, 30000, 15000" value="<?php echo htmlspecialchars(isset($editing['accessories'])?implode(',', array_map(function($a){return (string)($a['pricePerDay']??0);}, (array)$editing['accessories'])):''); ?>">
+                    </label>
+                    <label>Phụ kiện - Ảnh (URL, đồng bộ thứ tự)
+                        <input name="acc_images" placeholder="https://... , https://..." value="<?php echo htmlspecialchars(isset($editing['accessories'])?implode(',', array_map(function($a){return (string)($a['image']??'');}, (array)$editing['accessories'])):''); ?>">
+                    </label>
                     <label class="full">Ảnh (nhiều URL, cách nhau bởi dấu phẩy)
                         <input name="images" placeholder="https://... , https://..." value="<?php echo htmlspecialchars(isset($editing['images'])?implode(',',(array)$editing['images']):''); ?>">
                         <span style="font-size:12px;color:var(--muted)">Ví dụ: https://domain/anh1.jpg, https://domain/anh2.jpg</span>
@@ -450,7 +479,7 @@ $tab = $_GET['tab'] ?? 'dashboard';
                     </div></div>
                 </div>
                 <h4>Danh sách món</h4>
-                <table class="table"><thead><tr><th>#</th><th>Sản phẩm</th><th>Size</th><th>Từ</th><th>Ngày</th><th>Đơn giá</th><th>Tạm tính</th></tr></thead><tbody>
+                <table class="table"><thead><tr><th>#</th><th>Sản phẩm</th><th>Size</th><th>Từ</th><th>Ngày</th><th>SL</th><th>Đơn giá</th><th>Tạm tính</th></tr></thead><tbody>
                     <?php foreach ($current['items'] as $i => $it): ?>
                         <tr>
                             <td><?php echo $i+1; ?></td>
@@ -458,8 +487,9 @@ $tab = $_GET['tab'] ?? 'dashboard';
                             <td><?php echo htmlspecialchars($it['size'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($it['from'] ?? ''); ?></td>
                             <td><?php echo (int)($it['days'] ?? 1); ?></td>
+                            <td><?php echo (int)max(1,(int)($it['qty'] ?? 1)); ?></td>
                             <td><?php echo number_format((int)($it['pricePerDay'] ?? 0),0,',','.'); ?>₫</td>
-                            <td><?php echo number_format(((int)($it['pricePerDay'] ?? 0))*max(1,(int)($it['days'] ?? 1)),0,',','.'); ?>₫</td>
+                            <td><?php $qty=max(1,(int)($it['qty'] ?? 1)); echo number_format(((int)($it['pricePerDay'] ?? 0))*max(1,(int)($it['days'] ?? 1))*$qty,0,',','.'); ?>₫</td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody></table>
@@ -467,12 +497,13 @@ $tab = $_GET['tab'] ?? 'dashboard';
             </div></div>
         <?php else: ?>
             <table class="table">
-                <thead><tr><th>Mã</th><th>Khách</th><th>Tổng</th><th>Ngày</th><th></th></tr></thead>
+                <thead><tr><th>Mã</th><th>Khách</th><th>Số SP</th><th>Tổng</th><th>Ngày</th><th></th></tr></thead>
                 <tbody>
                     <?php foreach ($orders as $o): ?>
                     <tr>
                         <td><?php echo htmlspecialchars($o['code'] ?? ''); ?></td>
                         <td><?php echo htmlspecialchars($o['customer']['name'] ?? ''); ?></td>
+                        <td><?php echo isset($o['items']) ? count($o['items']) : 0; ?></td>
                         <td><?php echo number_format((int)($o['total'] ?? 0),0,',','.'); ?>₫</td>
                         <td><?php echo htmlspecialchars($o['createdAt'] ?? ''); ?></td>
                         <td><a class="btn" href="?page=admin&tab=orders&code=<?php echo urlencode($o['code']); ?>">Xem</a></td>
